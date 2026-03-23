@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>도시계획 정보 대시보드</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --sidebar:#0f2744;
+  --sidebar2:#162f52;
+  --accent:#3b82f6;
+  --accent2:#22c55e;
+  --accent3:#f59e0b;
+  --accent4:#ef4444;
+  --bg:#f0f4f8;
+  --card:#ffffff;
+  --border:#e2e8f0;
+  --text:#1e293b;
+  --muted:#64748b;
+  --molit:#1d4ed8;
+  --seoul:#166534;
+  --moleg:#7c3aed;
+  --g2b:#c2410c;
+}
+body{font-family:'Noto Sans KR','Malgun Gothic',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:14px;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:220px;min-width:220px;background:var(--sidebar);display:flex;flex-direction:column;padding:0;position:fixed;top:0;left:0;height:100vh;z-index:50;box-shadow:4px 0 20px rgba(0,0,0,.25);}
+.sb-logo{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,.08);}
+.sb-logo .icon{font-size:22px;margin-bottom:4px;}
+.sb-logo h1{color:#fff;font-size:15px;font-weight:700;line-height:1.3;}
+.sb-logo p{color:rgba(255,255,255,.4);font-size:10.5px;margin-top:2px;}
+.sb-section{padding:16px 12px 6px;color:rgba(255,255,255,.3);font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 16px;color:rgba(255,255,255,.65);font-size:13px;font-weight:500;cursor:pointer;border-radius:0;transition:all .15s;border-left:3px solid transparent;text-decoration:none;}
+.sb-item:hover{background:rgba(255,255,255,.07);color:#fff;}
+.sb-item.active{background:rgba(59,130,246,.15);color:#fff;border-left-color:var(--accent);}
+.sb-item .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.sb-badge{margin-left:auto;font-size:10px;background:rgba(255,255,255,.15);padding:1px 7px;border-radius:10px;font-weight:600;}
+.sb-badge.live{background:rgba(34,197,94,.25);color:#86efac;}
+.sb-footer{margin-top:auto;padding:16px;border-top:1px solid rgba(255,255,255,.08);}
+.sb-footer .time{color:rgba(255,255,255,.35);font-size:10.5px;text-align:center;font-family:monospace;}
+
+/* ── MAIN ── */
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
+
+/* ── TOP BAR ── */
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.topbar-left h2{font-size:17px;font-weight:700;color:var(--text);}
+.topbar-left p{font-size:11.5px;color:var(--muted);}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.btn-rf{background:var(--accent);color:#fff;border:none;padding:7px 16px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s;display:flex;align-items:center;gap:6px;}
+.btn-rf:hover{background:#2563eb;}
+.upd{font-size:11px;color:var(--muted);background:#f8fafc;border:1px solid var(--border);padding:5px 12px;border-radius:6px;}
+
+/* ── CONTENT ── */
+.content{padding:20px 24px;flex:1;}
+
+
+
+/* ── NEWS GRID ── */
+.news-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;}
+.news-card{background:var(--card);border-radius:12px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.05);display:flex;flex-direction:column;overflow:hidden;transition:box-shadow .2s;}
+.news-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.10);}
+.nc-head{display:flex;align-items:center;justify-content:space-between;padding:12px 15px 11px;border-bottom:1px solid var(--border);}
+.nc-head .left{display:flex;align-items:center;gap:8px;}
+.nc-head .bar{width:3px;height:16px;border-radius:2px;flex-shrink:0;}
+.nc-head .title{font-size:13px;font-weight:700;color:var(--text);}
+.nc-head .cnt{font-size:10px;font-weight:600;background:#f1f5f9;color:var(--muted);padding:2px 7px;border-radius:10px;}
+.nc-head .rbtn{background:none;border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:11px;color:var(--muted);cursor:pointer;transition:all .15s;font-family:inherit;}
+.nc-head .rbtn:hover{background:#f1f5f9;color:var(--text);}
+.nc-body{overflow-y:auto;max-height:260px;flex:1;}
+.ni{padding:9px 15px;border-bottom:1px solid #f8fafc;transition:background .12s;}
+.ni:last-child{border-bottom:none;}
+.ni:hover{background:#f8fafc;}
+.na{display:block;color:var(--text);text-decoration:none;font-size:12.5px;line-height:1.5;font-weight:500;}
+.na:hover{color:var(--accent);}
+.nd{font-size:10.5px;color:var(--muted);margin-top:2px;}
+.nc-load{padding:24px;text-align:center;color:var(--muted);font-size:12px;}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid #e2e8f0;border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:5px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.nc-err{padding:14px 15px;}
+.nc-err p{color:var(--accent4);font-size:12px;margin-bottom:6px;}
+.nc-err a{color:var(--accent);font-size:12px;text-decoration:none;}
+.nc-err a:hover{text-decoration:underline;}
+
+/* ── G2B CARD (wide) ── */
+.g2b-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.g2b-card{background:var(--card);border-radius:12px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.05);overflow:hidden;}
+.g2b-head{padding:12px 15px 11px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.g2b-head .bar{width:3px;height:16px;border-radius:2px;background:var(--g2b);}
+.g2b-head .title{font-size:13px;font-weight:700;}
+.g2b-warn{background:#fff7ed;border-bottom:1px solid #fed7aa;padding:9px 15px;font-size:12px;color:#92400e;display:flex;align-items:flex-start;gap:6px;}
+.g2b-btns{padding:14px 15px;display:flex;gap:10px;flex-wrap:wrap;}
+.g2b-a{display:flex;align-items:center;gap:7px;padding:9px 14px;background:#fff7ed;border:1.5px solid #fb923c;border-radius:8px;text-decoration:none;color:#c2410c;font-weight:600;font-size:12px;font-family:inherit;transition:background .15s;white-space:nowrap;}
+.g2b-a:hover{background:#fef3c7;}
+.g2b-a .ico{font-size:15px;}
+.g2b-tags-row{padding:10px 15px 14px;display:flex;flex-wrap:wrap;gap:6px;border-top:1px solid var(--border);}
+.tag{background:#eff6ff;color:#1d4ed8;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:500;}
+
+/* ── TIPS CARD ── */
+.tips-card{background:var(--card);border-radius:12px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.05);overflow:hidden;}
+.tips-head{padding:12px 15px 11px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.tips-head .bar{width:3px;height:16px;border-radius:2px;background:var(--accent2);}
+.tips-head .title{font-size:13px;font-weight:700;}
+.tips-body{padding:12px 15px;}
+.tip-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid #f8fafc;}
+.tip-item:last-child{border-bottom:none;}
+.tip-num{width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.tip-text{font-size:12px;color:var(--muted);line-height:1.55;}
+.tip-text b{color:var(--text);font-weight:600;}
+
+@media(max-width:1100px){.stats{grid-template-columns:repeat(2,1fr);}.news-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:780px){.sidebar{display:none;}.main{margin-left:0;}.stats{grid-template-columns:1fr 1fr;}.news-grid{grid-template-columns:1fr;}.g2b-row{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sb-logo">
+    <div class="icon">🏙️</div>
+    <h1>도시계획<br>정보 대시보드</h1>
+    <p>Urban Planning Dashboard</p>
+  </div>
+  <div class="sb-section">정보 채널</div>
+  <a class="sb-item active" href="#">
+    <div class="dot" style="background:#3b82f6;"></div>
+    국토부 보도자료
+    <span class="sb-badge live" id="sb-molit">-</span>
+  </a>
+  <a class="sb-item" href="#">
+    <div class="dot" style="background:#22c55e;"></div>
+    서울시청 보도자료
+    <span class="sb-badge live" id="sb-seoul">-</span>
+  </a>
+  <a class="sb-item" href="#">
+    <div class="dot" style="background:#a855f7;"></div>
+    법제처 입법예고
+    <span class="sb-badge live" id="sb-moleg">-</span>
+  </a>
+  <a class="sb-item" href="#">
+    <div class="dot" style="background:#f59e0b;"></div>
+    나라장터 사전규격
+    <span class="sb-badge">직접방문</span>
+  </a>
+  <div class="sb-section" style="margin-top:8px;">외부 링크</div>
+  <a class="sb-item" href="https://www.molit.go.kr" target="_blank">↗ 국토교통부</a>
+  <a class="sb-item" href="https://www.seoul.go.kr" target="_blank">↗ 서울특별시</a>
+  <a class="sb-item" href="https://www.moleg.go.kr" target="_blank">↗ 법제처</a>
+  <a class="sb-item" href="https://www.g2b.go.kr" target="_blank">↗ 나라장터</a>
+  <div class="sb-footer">
+    <div class="time" id="sb-time">--:--:-- 갱신</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <h2>도시계획 정보 모니터링</h2>
+      <p>국토부 · 서울시청 · 법제처 · 나라장터 실시간 현황</p>
+    </div>
+    <div class="topbar-right">
+      <span class="upd" id="upd-time">—</span>
+      <button class="btn-rf" onclick="refreshAll()">↻ 새로고침</button>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- NEWS PANELS -->
+    <div class="news-grid">
+      <!-- 국토부 -->
+      <div class="news-card">
+        <div class="nc-head">
+          <div class="left">
+            <div class="bar" style="background:var(--molit);"></div>
+            <span class="title">국토부 보도자료</span>
+            <span class="cnt" id="cnt-molit">-</span>
+          </div>
+          <button class="rbtn" onclick="loadFeed('molit')">↻ 새로고침</button>
+        </div>
+        <div class="nc-body" id="feed-molit"><div class="nc-load"><span class="spin"></span>로딩 중...</div></div>
+      </div>
+      <!-- 서울시청 -->
+      <div class="news-card">
+        <div class="nc-head">
+          <div class="left">
+            <div class="bar" style="background:var(--seoul);"></div>
+            <span class="title">서울시청 보도자료</span>
+            <span class="cnt" id="cnt-seoul">-</span>
+          </div>
+          <button class="rbtn" onclick="loadFeed('seoul')">↻ 새로고침</button>
+        </div>
+        <div class="nc-body" id="feed-seoul"><div class="nc-load"><span class="spin"></span>로딩 중...</div></div>
+      </div>
+      <!-- 법제처 -->
+      <div class="news-card">
+        <div class="nc-head">
+          <div class="left">
+            <div class="bar" style="background:var(--moleg);"></div>
+            <span class="title">법제처 입법예고</span>
+            <span class="cnt" id="cnt-moleg">-</span>
+          </div>
+          <button class="rbtn" onclick="loadFeed('moleg')">↻ 새로고침</button>
+        </div>
+        <div class="nc-body" id="feed-moleg"><div class="nc-load"><span class="spin"></span>로딩 중...</div></div>
+      </div>
+    </div>
+
+    <!-- G2B + TIPS -->
+    <div class="g2b-row">
+      <div class="g2b-card">
+        <div class="g2b-head">
+          <div class="bar"></div>
+          <span class="title">🏗️ 나라장터 사전규격 공개 바로가기</span>
+        </div>
+        <div class="g2b-warn">⚠️ <span><b>나라장터는 RSS를 제공하지 않습니다.</b> 아래 버튼으로 직접 확인하세요.</span></div>
+        <div class="g2b-btns">
+          <a class="g2b-a" href="https://www.g2b.go.kr:8101/ep/invite/process/preRuleList.do" target="_blank"><span class="ico">📑</span>사전규격 전체 목록</a>
+          <a class="g2b-a" href="https://www.g2b.go.kr:8101/ep/invite/process/preRuleList.do?searchCnd=1&searchWrd=%EB%8F%84%EC%8B%9C%EA%B3%84%ED%9A%8D" target="_blank"><span class="ico">🌆</span>도시계획 검색</a>
+          <a class="g2b-a" href="https://www.g2b.go.kr:8101/ep/invite/process/preRuleList.do?searchCnd=1&searchWrd=%EB%8F%84%EC%8B%9C%EC%84%A4%EA%B3%84" target="_blank"><span class="ico">📌</span>도시설계 검색</a>
+          <a class="g2b-a" href="https://www.g2b.go.kr:8101/ep/invite/process/preRuleList.do?searchCnd=1&searchWrd=%EB%8F%84%EC%8B%9C%EC%9E%AC%EC%83%9D" target="_blank"><span class="ico">🔄</span>도시재생 검색</a>
+        </div>
+        <div class="g2b-tags-row">
+          <span class="tag">도시계획</span><span class="tag">도시설계</span><span class="tag">도시재생</span>
+          <span class="tag">마스터플랜</span><span class="tag">정비사업</span><span class="tag">지구단위계획</span>
+          <span class="tag">도시개발</span><span class="tag">도시관리계획</span>
+        </div>
+      </div>
+      <div class="tips-card">
+        <div class="tips-head">
+          <div class="bar"></div>
+          <span class="title">💡 RSS 오류 발생 시 해결 방법</span>
+        </div>
+        <div class="tips-body">
+          <div class="tip-item">
+            <div class="tip-num">1</div>
+            <div class="tip-text"><b>↻ 새로고침 버튼</b>을 한 번 더 눌러보세요. 프록시 서버 일시 과부하일 수 있습니다.</div>
+          </div>
+          <div class="tip-item">
+            <div class="tip-num">2</div>
+            <div class="tip-text"><b>브라우저를 새탭</b>으로 열거나 <b>Ctrl+F5</b>로 강력 새로고침하세요.</div>
+          </div>
+          <div class="tip-item">
+            <div class="tip-num">3</div>
+            <div class="tip-text">오류 패널 하단의 <b>"원본 사이트 확인"</b> 링크로 직접 방문하세요.</div>
+          </div>
+          <div class="tip-item">
+            <div class="tip-num">4</div>
+            <div class="tip-text">지속 오류 시 <b>RSS URL이 변경</b>된 것입니다. 각 기관 사이트 하단의 RSS 아이콘에서 새 URL을 확인하세요.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<script>
+var FEEDS = {
+  molit: {
+    urls: [
+      'https://www.molit.go.kr/rss/pressLtrRss.do',
+      'https://www.molit.go.kr/USR/NEWS/m_71/rss.jsp'
+    ],
+    alt: 'https://www.molit.go.kr/USR/NEWS/m_71/lst.jsp',
+    label: '국토부 보도자료',
+    color: '#1d4ed8'
+  },
+  seoul: {
+    urls: [
+      'https://news.seoul.go.kr/api/arsv/rss',
+      'https://www.seoul.go.kr/news/news_report.do#rss'
+    ],
+    alt: 'https://news.seoul.go.kr',
+    label: '서울시청 보도자료',
+    color: '#166534'
+  },
+  moleg: {
+    urls: [
+      'https://www.moleg.go.kr/RSS/molegRss.xml',
+      'https://www.moleg.go.kr/lawinfo/lawNewBill.mo?rss=true'
+    ],
+    alt: 'https://www.moleg.go.kr/lawinfo/lawNewBill.mo',
+    label: '법제처 입법예고',
+    color: '#7c3aed'
+  }
+};
+
+// 프록시 목록 (순서대로 시도)
+var PROXIES = [
+  'https://api.rss2json.com/v1/api.json?count=20&rss_url=',
+  'https://api.rss2json.com/v1/api.json?count=20&api_key=&rss_url='
+];
+
+function pad(n){ return String(n).length===1?'0'+n:String(n); }
+
+function cleanTitle(t){
+  return (t||'')
+    .replace(/&amp;/g,'&').replace(/&quot;/g,'"')
+    .replace(/&#39;/g,"'").replace(/&lt;/g,'<').replace(/&gt;/g,'>')
+    .replace(/&apos;/g,"'").replace(/<[^>]+>/g,'').trim();
+}
+
+function tryFeed(urls, proxyIdx, urlIdx, resolve, reject) {
+  if (proxyIdx >= PROXIES.length) { reject(new Error('all proxies failed')); return; }
+  if (urlIdx >= urls.length) { tryFeed(urls, proxyIdx+1, 0, resolve, reject); return; }
+  var url = PROXIES[proxyIdx] + encodeURIComponent(urls[urlIdx]);
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d.status==='ok' && d.items && d.items.length > 0){
+        resolve(d.items);
+      } else {
+        tryFeed(urls, proxyIdx, urlIdx+1, resolve, reject);
+      }
+    })
+    .catch(function(){
+      tryFeed(urls, proxyIdx, urlIdx+1, resolve, reject);
+    });
+}
+
+function loadFeed(key){
+  var f = FEEDS[key];
+  var box = document.getElementById('feed-'+key);
+  var cnt = document.getElementById('cnt-'+key);
+  var sbadge = document.getElementById('sb-'+key);
+  box.innerHTML='<div class="nc-load"><span class="spin"></span>로딩 중...</div>';
+  cnt.textContent='…';
+
+  new Promise(function(resolve, reject){
+    tryFeed(f.urls, 0, 0, resolve, reject);
+  })
+  .then(function(items){
+    cnt.textContent = items.length;
+    if(sbadge){ sbadge.textContent = items.length; }
+    box.innerHTML = items.map(function(item){
+      var t = cleanTitle(item.title);
+      var dt = (item.pubDate||'').substring(0,10);
+      return '<div class="ni"><a class="na" href="'+item.link+'" target="_blank" rel="noopener">'+t+'</a><div class="nd">'+dt+'</div></div>';
+    }).join('');
+  })
+  .catch(function(){
+    cnt.textContent='!';
+    if(sbadge){ sbadge.textContent='오류'; sbadge.className='sb-badge'; }
+    box.innerHTML='<div class="nc-err"><p>⚠️ RSS를 불러오지 못했습니다.<br>아래 링크로 직접 확인하세요.</p><a href="'+f.alt+'" target="_blank">→ '+f.label+' 원본 사이트 바로가기 ↗</a></div>';
+  });
+}
+
+function refreshAll(){
+  ['molit','seoul','moleg'].forEach(function(k){ loadFeed(k); });
+  var now = new Date();
+  var ts = now.getFullYear()+'/'+(now.getMonth()+1)+'/'+now.getDate()+' '+pad(now.getHours())+':'+pad(now.getMinutes())+' 갱신';
+  document.getElementById('upd-time').textContent = ts;
+  document.getElementById('sb-time').textContent = ts;
+}
+
+refreshAll();
+setInterval(refreshAll, 30*60*1000);
+</script>
+</body>
+</html>
